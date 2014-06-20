@@ -36,7 +36,11 @@ start(Handler) ->
 %%		{nb_acceptors: 100},	% acceptor pool size
 %%		{host, '_'},			% host IP
 %%		{port, 7654},			% host port
-%%		{public, "public"}		% custom path for static files
+%%		{public, "public"},		% custom path for static files
+%%    {ssl, false},     % enable ssl
+%%    {cacertfile, ""},     % set the path to a certificate authority file
+%%    {certfile, ""},       % set the path to a certificate file
+%%    {keyfile, ""}       % set the path for a key file
 %%	]
 %% '''
 %%
@@ -54,9 +58,19 @@ start(Handler, Options) ->
 	end,
 	{ok, NbAcceptors} = application:get_env(axiom, nb_acceptors),
 	{ok, Port} = application:get_env(axiom, port),
-	cowboy:start_http(axiom_listener, NbAcceptors, [{port, Port}],
-		[{env, [{dispatch, Dispatch}]}]
-	).
+  case application:get_env(axiom, ssl) of
+    false ->
+      cowboy:start_http(axiom_listener, NbAcceptors, [{port, Port}],
+        [{env, [{dispatch, Dispatch}]}]);
+    true ->
+      CA = application:get_env(axiom, cacertfile),
+      Cert = application:get_env(axiom, certfile),
+      Key = application:get_env(axiom, keyfile),
+      CowboyOptions = [{port, Port}, {cacertfile, CA}, {certfile, Cert},
+                       {keyfile, Key}],
+      cowboy:start_https(axiom_listener, NbAcceptors, CowboyOptions,
+                         [{env, [{dispatch, Dispatch}]}])
+  end.
 
 
 %% @doc Stops axiom.
