@@ -38,11 +38,15 @@ start(Handler) ->
 %%		{port, 7654},			% host port
 %%		{public, "public"},		% custom path for static files
 %%    {ssl, false},     % enable ssl
-%%    {cacertfile, ""},     % set the path to a certificate authority file
-%%    {certfile, ""},       % set the path to a certificate file
-%%    {keyfile, ""}       % set the path for a key file
 %%	]
 %% '''
+%%
+%% For SSL you may also need to add the following:
+%%
+%% [{ssl, true},
+%%  {cacertfile, "/path/to/ca.crt"},
+%%  {certfile, "/path/to/cert.crt"},
+%%  {keyfile, "/path/to/key.key"}]
 %%
 -spec start(module(), [tuple()]) -> {ok, pid()}.
 start(Handler, Options) ->
@@ -63,12 +67,14 @@ start(Handler, Options) ->
       cowboy:start_http(axiom_listener, NbAcceptors, [{port, Port}],
         [{env, [{dispatch, Dispatch}]}]);
     true ->
-      CA = application:get_env(axiom, cacertfile),
-      Cert = application:get_env(axiom, certfile),
-      Key = application:get_env(axiom, keyfile),
-      CowboyOptions = [{port, Port}, {cacertfile, CA}, {certfile, Cert},
-                       {keyfile, Key}],
-      cowboy:start_https(axiom_listener, NbAcceptors, CowboyOptions,
+      BaseOptions = [{port, application:get_env(axiom, port)},
+                     {certfile, application:get_env(axiom, certfile)},
+                     {keyfile, application:get_env(axiom, keyfile)}],
+      Options = case application:get_env(axiom, cacertfile) of
+        {ok, Certfile} -> lists:append(BaseOptions, [{cacertfile, CertFile}]);
+        undefined -> BaseOptions
+      end,
+      cowboy:start_https(axiom_listener, NbAcceptors, Options,
                          [{env, [{dispatch, Dispatch}]}])
   end.
 
