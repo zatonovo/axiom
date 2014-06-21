@@ -43,10 +43,12 @@ start(Handler) ->
 %%
 %% For SSL you may also need to add the following:
 %%
+%% ```
 %% [{ssl, true},
 %%  {cacertfile, "/path/to/ca.crt"},
 %%  {certfile, "/path/to/cert.crt"},
 %%  {keyfile, "/path/to/key.key"}]
+%% '''
 %%
 -spec start(module(), [tuple()]) -> {ok, pid()}.
 start(Handler, Options) ->
@@ -67,9 +69,9 @@ start(Handler, Options) ->
       cowboy:start_http(axiom_listener, NbAcceptors, [{port, Port}],
         [{env, [{dispatch, Dispatch}]}]);
     {ok, true} ->
-      BaseOptions = [{port, application:get_env(axiom, port)},
-                     {certfile, application:get_env(axiom, certfile)},
-                     {keyfile, application:get_env(axiom, keyfile)}],
+      {ok, Cert} = application:get_env(axiom, certfile),
+      {ok, Key} = application:get_env(axiom, keyfile),
+      BaseOptions = [{port, Port}, {certfile, Cert}, {keyfile, Key}],
       Options = case application:get_env(axiom, cacertfile) of
         {ok, CA} -> lists:append(BaseOptions, [{cacertfile, CA}]);
         undefined -> BaseOptions
