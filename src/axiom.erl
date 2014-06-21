@@ -72,11 +72,11 @@ start(Handler, Options) ->
       {ok, Cert} = application:get_env(axiom, certfile),
       {ok, Key} = application:get_env(axiom, keyfile),
       BaseOptions = [{port, Port}, {certfile, Cert}, {keyfile, Key}],
-      Options = case application:get_env(axiom, cacertfile) of
+      ServerOptions = case application:get_env(axiom, cacertfile) of
         {ok, CA} -> lists:append(BaseOptions, [{cacertfile, CA}]);
         undefined -> BaseOptions
       end,
-      cowboy:start_https(axiom_listener, NbAcceptors, Options,
+      cowboy:start_https(axiom_listener, NbAcceptors, ServerOptions,
                          [{env, [{dispatch, Dispatch}]}])
   end.
 
