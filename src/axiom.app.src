@@ -15,9 +15,6 @@
    {port, 7654},
    {path, '_'},
    {public, "public"},
-   {ssl, false},
-   {cacertfile, ""},
-   {certfile, ""},
-   {keyfile, ""}
+   {ssl, false}
   ]}
  ]}.
