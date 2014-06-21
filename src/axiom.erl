@@ -63,10 +63,10 @@ start(Handler, Options) ->
 	{ok, NbAcceptors} = application:get_env(axiom, nb_acceptors),
 	{ok, Port} = application:get_env(axiom, port),
   case application:get_env(axiom, ssl) of
-    false ->
+    {ok, false} ->
       cowboy:start_http(axiom_listener, NbAcceptors, [{port, Port}],
         [{env, [{dispatch, Dispatch}]}]);
-    true ->
+    {ok, true} ->
       BaseOptions = [{port, application:get_env(axiom, port)},
                      {certfile, application:get_env(axiom, certfile)},
                      {keyfile, application:get_env(axiom, keyfile)}],
