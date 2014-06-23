@@ -255,9 +255,9 @@ handle(Req, State) ->
 
 %% @private
 %% @doc Called by {@link //cowboy} during initialization.
--spec init({tcp, http}, cowboy_req:req(), [module()]) ->
+-spec init({_, http}, cowboy_req:req(), [module()]) ->
 	{ok, cowboy_req:req(), #state{}}.
-init({tcp, http}, Req, [Handler]) ->
+init({_, http}, Req, [Handler]) ->
 	{ok, Req, #state{handler = Handler}}.
 
 
