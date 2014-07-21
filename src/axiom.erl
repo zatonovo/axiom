@@ -311,6 +311,10 @@ handle_error(Error, Reason, Stacktrace, Handler, Req) ->
 	                  (cowboy_req:req(), cowboy_req:req()) -> cowboy_req:req().
 
 
+% Used for passing explicit request object back
+process_response({request, Body, Req}, _) ->
+  process_response(Body, Req);
+
 process_response({Status, [], Body}, Req) ->
 	process_response({Status, Body}, Req);
 
